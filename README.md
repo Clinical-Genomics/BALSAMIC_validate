@@ -1,5 +1,7 @@
 # BALSAMIC_validate
 
+## version = 0.1.0
+
 ## Aim 
 A set of tools and data to validate BALSAMIC updates and other relevant pipelines: MIP, Nextflow, and Snakemake based
 pipelines or any variant callers.
