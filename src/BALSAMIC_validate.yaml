@@ -1,0 +1,11 @@
+channels:
+  - bioconda
+  - conda-forge 
+dependencies:
+  - python=3.6
+  - pip=10.0.1
+  - dwgsim=1.1.11
+  - snakemake=5.1.5
+  - samtools=1.8
+  - bwa=0.7.17
+  - tabix=0.2.5
