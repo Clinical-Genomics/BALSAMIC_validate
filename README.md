@@ -1,4 +1,4 @@
-# Cancer_validate
+# BALSAMIC_validate
 
 ## __version__ 0.1.0
 
