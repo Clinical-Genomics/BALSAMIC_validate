@@ -1,9 +1,9 @@
-# BALSAMIC_validate
+# Cancer_validate
 
 ## __version__ 0.1.0
 
 ## Aim 
-A set of tools and data to validate BALSAMIC updates and other relevant pipelines: MIP, Nextflow, and Snakemake based
+A set of tools and data to validate BALSAMIC (a workflows in clinical genomics) updates and other relevant pipelines: MIP, Nextflow, and Snakemake based
 pipelines or any variant callers.
 
 ## Input data description
