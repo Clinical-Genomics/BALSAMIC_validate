@@ -1,10 +1,11 @@
-# BALSAMIC_validate
+# BALSAMIC_validation
 
-## __version__ 0.1.0
+## __version__ 2.9.1
 
 ## Aim 
-A set of tools and data to validate BALSAMIC (a workflows in clinical genomics) updates and other relevant pipelines: MIP, Nextflow, and Snakemake based
-pipelines or any variant callers.
+The goal of this repo is to develop a standard workflow using set of tools to validate BALSAMIC's (Cancer analysis workflow in Clinical Genomics) Somatic, Tumor only and Germline pipelines. 
+
+This repo inspired from bcbio validation, ga4gh benchmark tools. 
 
 ## Input data description
 Samples are simulated data without noise generated from human reference genome hg19. These simulated reads are on fastq
