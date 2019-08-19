@@ -1,4 +1,4 @@
-# BALSAMIC_validation _ v2.9.1
+# BALSAMIC_validation v2.9.1
 
 ## Aim 
 
@@ -12,11 +12,11 @@ Platinum genome (NA12878-WES) has been sequenced to use this as input data for v
 
 ## Workflows
 
-Data generation:
+N/T - data generation:
 
 * This is a singularity based workflow adopted from SomaticSeq bamsimulator pipelines using modified BAMSurgeon.
 * `BamSimulator_singleThread.sh` creates semi-simulated tumor-normal pairs out of your input tumor-normal data. The "ground truth" of the somatic mutations will be `synthetic_snvs.vcf` and `synthetic_indels.leftAlign.vcf` in the output directory.
-* For multi-thread job (WGS), use BamSimulator_multiThreads.sh instead.
+* For multi-thread job (WGS), use `BamSimulator_multiThreads.sh` instead.
 
 Validation:
 
@@ -24,9 +24,9 @@ Validation:
 * Plots 
 
 Requirements:
-	* singularity
-	* hap.py
-	* sbatch (for HPC)
+* singularity
+* hap.py
+* sbatch (for HPC)
 
 Note: plots dependencies need to be added
 
