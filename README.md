@@ -1,63 +1,36 @@
-# BALSAMIC_validation
-
-## __version__ 2.9.1
+# BALSAMIC_validation _ v2.9.1
 
 ## Aim 
+
 The goal of this repo is to develop a standard workflow using set of tools to validate BALSAMIC's (Cancer analysis workflow in Clinical Genomics) Somatic, Tumor only and Germline pipelines. 
 
-This repo inspired from bcbio validation, ga4gh benchmark tools. 
 
 ## Input data description
-Samples are simulated data without noise generated from human reference genome hg19. These simulated reads are on fastq
-and bam file level. Fastq files can be used to evaluate read aligners, and they are only functional for SNV and probably
-some short indels. BAM files, however, are suitable for evaluating SNVs, indels, some handpicked structural variants,
-and CNVs.
 
-Samples are divided into WES and WGS data. and right now there is no family or trio level data included.
+Platinum genome (NA12878-WES) has been sequenced to use this as input data for validation using Illumina Novaseq. We used [bamsurgeon workflow](https://github.com/bioinform/somaticseq/tree/master/utilities/dockered_pipelines/bamSimulator) developed by SomaticSeq team to create tumor and normal samples with truth set of variants. This workflow will provide mutations(SNVs, INDELs) spikedin bam file with gold standard vcf file to compare the query vcf.
 
-## Run analysis
 
-1. src/merge_vcf.py Merge output VCF from the pipeline of choice into a single one. This script is just a simple concatenation wrapper. It does NOT right/left align variant and does NOT account for duplicates.
+## Workflows
 
-2. src/compare_vcf.py Compares VCF files and generates set of statistics: recall, percision, and F1 score.
+Data generation:
 
-3. src/report_vcf.py Generates a simple PDF report from `src/compare_vcf.py` output. It requires pylatex installed.
+* This is a singularity based workflow adopted from SomaticSeq bamsimulator pipelines using modified BAMSurgeon.
+* `BamSimulator_singleThread.sh` creates semi-simulated tumor-normal pairs out of your input tumor-normal data. The "ground truth" of the somatic mutations will be `synthetic_snvs.vcf` and `synthetic_indels.leftAlign.vcf` in the output directory.
+* For multi-thread job (WGS), use BamSimulator_multiThreads.sh instead.
 
+Validation:
+
+* Illumina's `Hap.py` tool can be used to validate the query vcf from BALSAMIC run. It has `som.py` script to compare somatic mutations by locations and alleles using bcftools isec.
+* Plots 
+
+Requirements:
+	* singularity
+	* hap.py
+	* sbatch (for HPC)
+
+Note: plots dependencies need to be added
 
 ## Folder structure
 
-WES data:
-
-```
-data/WES
-├── WES_normal_1.bam
-├── WES_normal_1_indel.vcf
-├── WES_normal_1_R1.fastq
-├── WES_normal_1_R2.fastq
-├── WES_normal_1_SNV.vcf
-├── WES_tumor_1.bam
-├── WES_tumor_1_CNV.vcf
-├── WES_tumor_1_indel.vcf
-├── WES_tumor_1_R1.fastq
-├── WES_tumor_1_R2.fastq
-└── WES_tumor_1_SNV.vcf
-```
-
-WGS data:
-
-```
-data/WGS/
-├── WGS_normal_1.bam
-├── WGS_normal_1_indel.vcf
-├── WGS_normal_1_R1.fastq
-├── WGS_normal_1_R2.fastq
-├── WGS_normal_1_SNV.vcf
-├── WGS_tumor_1.bam
-├── WGS_tumor_1_CNV.vcf
-├── WGS_tumor_1_indel.vcf
-├── WGS_tumor_1_R1.fastq
-├── WGS_tumor_1_R2.fastq
-└── WGS_tumor_1_SNV.vcf
-```
 
 
