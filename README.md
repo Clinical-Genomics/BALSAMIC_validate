@@ -30,7 +30,7 @@ Requirements:
 
 Note: plots dependencies need to be added
 
-## Folder structure
-
-
+## Validation - SNVs and small INDELS
+* germline-variants -- validation of germline variants using haplotypecaller and strelka-germline
+* somatic-variants -- validation of somatic calls from gatk3-mutect2, VarDict, and Strelka-somatic
 
