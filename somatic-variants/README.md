@@ -16,9 +16,16 @@ High coverage sample:
 * Coverage: 7471x  
 * Bed file: lymphomatic_v2.1_hg19.bed
 
-We followed second method to spike in somatic mutations.
+We followed second method to generate reference data. This workflow will provide spikedin bam file with `synthetic-snvs.vcf` and `synthetic_indels.leftalign.vcf`. We are using multiple variant callers approach for somatic variant calling. The callers are GATK3 MuTect2, Strelka-somatic, VarDict implemented in BALSAMIC. Final vcf file can be compared with truth set using `som.py` model. It does not include genotype, compares variants with locations and alleles.
 
-Overview:
+Variant callers:
+
+* MuTect2 - GATK3
+* Strelka-somatic
+* VarDict
+
+
+## Overview:
 
 - Alignment
 - Sorting and Indexing
@@ -31,5 +38,16 @@ Overview:
 	- Spike in Mutations (SNVs and INDELs)
 - Convert the bam file into fastq (To run BALSAMIC)
 - VCF - Validation (som.py)
+
+
+## Recall vs Precision
+
+Scatter plot to compare all variant callers recall against precision values
+
+![Recall vs Precision](scatter_plot.png)
+
+MuTect2 didn't pass single variant from this sample which seemed weird. However, Vardict called almost 70% of the truth variants but vardict algorithym calls all variants include germline. One of the possible reason could be the small targeted panel(26kb) with more than 450 mutations spikedin. We need to redo the analysis with whole exome data to compare the performance of each caller.
+
+In addition, We compared variant results from direct bam file which is generated from bamsurgeon. It showed some significant changes over number of variants called by strelka and vardict. But there was no change in MuTect2's performance.
 
 

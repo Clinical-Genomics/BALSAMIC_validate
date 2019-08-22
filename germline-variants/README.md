@@ -47,6 +47,6 @@ Vcf comparison and Benchmarking was done by Illumina hap.py tool for each varian
 
 Scatter plot to compare all variant callers recall against precision values
 
-![Recall vs Precision](germline_variants.png)
+![Recall vs Precision](scatter_plot.png)
 
 
