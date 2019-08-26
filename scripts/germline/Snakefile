@@ -1,0 +1,67 @@
+#! /usr/bin/env python
+# syntax=python tabstop=4 expandtab
+# This workflow is 
+
+import os
+
+_base_link = "ftp://ftp-trace.ncbi.nih.gov/giab/ftp/data/NA12878/Garvan_NA12878_HG001_HiSeq_Exome"
+_fastq = ['NIST7035_TAAGGCGA_L001_R1_001_trimmed.fastq.gz','NIST7035_TAAGGCGA_L001_R2_001_trimmed.fastq.gz', \
+ 		  'NIST7035_TAAGGCGA_L002_R1_001_trimmed.fastq.gz', 'NIST7035_TAAGGCGA_L002_R2_001_trimmed.fastq.gz']
+_bed_file = "nexterarapidcapture_expandedexome_targetedregions.bed.gz"
+_hc_vcf = "project.NIST.hc.snps.indels.vcf"
+_hg19_to_grch37 = "http://sourceforge.net/projects/crossmap/files/chain_files/hg19ToGRCh37.over.chain.gz"
+
+_lifted_vcf_file = "project.NIST.hc.snps.indels.grch37.vcf"
+_chain_file = "hg19ToGRCh37.over.chain"
+
+configfile: "config.json"
+
+outdir = config['outdir']
+
+workdir: outdir
+
+
+rule download_data:
+	params:
+		base_link = _base_link,
+		fastq = _fastq,
+		bed_file = _bed_file,
+		hc_vcf = _hc_vcf,
+		hg19_to_grch37 = _hg19_to_grch37,
+		chain_file = _chain_file
+	output: 
+		os.path.join(outdir, _bed_file),
+		os.path.join(outdir, _hc_vcf),
+		os.path.join(outdir, _chain_file),
+		expand(os.path.join(outdir, "{sample}"), sample=_fastq)
+	run:
+		bed_file = os.path.join(params.base_link, params.bed_file)
+		hc_vcf = os.path.join(params.base_link, params.hc_vcf)
+		shell("wget {bed_file};")
+		shell("wget {hc_vcf};")
+		shell("wget -O - {params.hg19_to_grch37} | gunzip > {params.chain_file}")
+
+		for file in list(params.fastq):
+			link = os.path.join(params.base_link, file)
+			shell("wget {link};")
+
+
+rule picard_lift_over:
+	input:
+		hc_vcf = os.path.join(_base_link, _hc_vcf),
+		chain_file = os.path.join(outdir, _hg19_to_grch37),
+		reference_genome = config['reference']
+	output:
+		lifted_vcf = os.path.join(outdir, lifted_vcf_file),
+		rejected_vcf = os.path.join(outdir, "rejected_variants.vcf")
+	shell:
+		"""
+		picard LiftoverVcf 
+				I={input.hc_vcf}
+				O={output.lifted_vcf}
+				CHAIN={input.chain_file}
+				REJECT={output.rejected_vcf}
+				R={input.reference_genome}
+		"""
+
+

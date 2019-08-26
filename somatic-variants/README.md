@@ -37,7 +37,7 @@ Variant callers:
 	- Generate random sites for snv, indel, sv, and cnv (for given region).
 	- Spike in Mutations (SNVs and INDELs)
 - Convert the bam file into fastq (To run BALSAMIC)
-- VCF - Validation (som.py)
+- VCF - Validation ([som.py](https://github.com/Illumina/hap.py/blob/master/doc/sompy.md))
 
 
 ## Recall vs Precision

@@ -1,7 +1,7 @@
 # Germline Variant calling
 
 - NA12878 sample raw fastq data with high confidence variants set from [Genome in a Bottle GiaB](https://www.nist.gov/programs-projects/genome-bottle) project. 
-- ftp link to download [NA12878](ftp://ftp-trace.ncbi.nih.gov/giab/ftp/data/NA12878/Garvan_NA12878_HG001_HiSeq_Exome)
+- ftp link to download NA12878(ftp://ftp-trace.ncbi.nih.gov/giab/ftp/data/NA12878/Garvan_NA12878_HG001_HiSeq_Exome)
 
 ## Sample Details:
 - NA12878 (WES)
