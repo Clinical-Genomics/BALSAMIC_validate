@@ -17,7 +17,7 @@ NIST7035 and NIST7086 are 2 vials of NA12878 DNA, a library was made from each, 
 * Freebayes
 * Strelka-germline 
 
-Vcf comparison and Benchmarking was done by Illumina hap.py tool for each variant caller. The summary of this report has been listed below. `hap.py` directory has all summary metrics file in csv format.
+Illumina hap.py tool is being used to compare vcf files for each germline variant callers. The summary of this report has been listed below, for detailed report can be found under `hap.py` directory as csv files.
 
 
 ## HaplotypeCaller - gatk-v3.8
