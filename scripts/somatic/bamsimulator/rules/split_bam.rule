@@ -1,0 +1,23 @@
+#! /usr/bin/env python
+# tabstop=4 expandtab
+
+rule split_bam:
+	input:
+		input_bam_file
+	params:
+		propotion = '0.5'
+		downsample = '1'
+		seed = seed
+	output:
+		normal = designated_normal_bam
+		tumor = designated_tumor_bam
+	shell:
+		"""
+		/usr/local/bamsurgeon/scripts/sortedBamSplit.py \
+				--bam {input} \
+				--proportion {params.proportion} \
+				--downsample {params.downsample} \
+				--pick1 {normal} \
+				--pick2 {tumor} \
+				--seed {seed} \
+		"""

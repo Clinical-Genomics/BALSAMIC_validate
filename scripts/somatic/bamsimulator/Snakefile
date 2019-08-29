@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+# syntax=python tabstop=4 expandtab
+
+#####################################################
+#  BAMSIMULATOR - TO GENERATE GOLD STANDARD
+#        NORMAL/TUMOR SAMPLE FOR
+#           SOMATIC VALIDATION
+#
+#####################################################
+
+

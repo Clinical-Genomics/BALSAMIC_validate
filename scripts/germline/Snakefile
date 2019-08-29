@@ -13,12 +13,20 @@ _hg19_to_grch37 = "http://sourceforge.net/projects/crossmap/files/chain_files/hg
 
 _lifted_vcf_file = "project.NIST.hc.snps.indels.grch37.vcf"
 _chain_file = "hg19ToGRCh37.over.chain"
+_bed_without_chr = "nexterarapidcapture.bed"
 
-configfile: "config.json"
+configfile: "config.yaml"
 
 outdir = config['outdir']
 
 workdir: outdir
+
+
+rule all:
+	input:
+		expand(os.path.join(outdir, "{sample}"), sample=_fastq),
+		expand(os.path.join(outdir, "{files}"), files=[_bed_file, 
+			_hc_vcf, _chain_file, _lifted_vcf_file, "rejected_variants.vcf", _bed_without_chr])
 
 
 rule download_data:
@@ -48,20 +56,33 @@ rule download_data:
 
 rule picard_lift_over:
 	input:
-		hc_vcf = os.path.join(_base_link, _hc_vcf),
-		chain_file = os.path.join(outdir, _hg19_to_grch37),
+		hc_vcf = os.path.join(outdir, _hc_vcf),
+		chain_file = os.path.join(outdir, _chain_file),
 		reference_genome = config['reference']
 	output:
-		lifted_vcf = os.path.join(outdir, lifted_vcf_file),
+		lifted_vcf = os.path.join(outdir, _lifted_vcf_file),
 		rejected_vcf = os.path.join(outdir, "rejected_variants.vcf")
+	params:
+		java_option = '-Xms2g'
+	conda: 'conda.yaml'
 	shell:
 		"""
-		picard LiftoverVcf 
-				I={input.hc_vcf}
-				O={output.lifted_vcf}
-				CHAIN={input.chain_file}
-				REJECT={output.rejected_vcf}
-				R={input.reference_genome}
+		picard {params.java_option} LiftoverVcf \
+				I={input.hc_vcf} \
+				O={output.lifted_vcf} \
+				CHAIN={input.chain_file} \
+				REJECT={output.rejected_vcf} \
+				R={input.reference_genome} 
 		"""
 
+
+rule remove_chr_bed:
+	input:
+		os.path.join(outdir, _bed_file)
+	output:
+		os.path.join(outdir, _bed_without_chr)
+	shell:
+		"""
+		zcat {input} | sed 's/^chr//g' > {output} 
+		"""
 

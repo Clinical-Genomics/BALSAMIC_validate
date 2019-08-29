@@ -1,0 +1,4 @@
+
+reference:
+    genome: /path/to/reference_genome
+    fasta_index: /path/to/reference_genome_index
