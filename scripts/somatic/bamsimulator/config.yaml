@@ -1,4 +1,38 @@
 
+samples:
+    normal: 'normal.bam'
+    tumor: 'tumor.bam'
+
 reference:
     genome: /path/to/reference_genome
-    fasta_index: /path/to/reference_genome_index
+    genome_fai: /path/to/reference_genome_index
+    genome_dict: 
+    targets: /path/to/bed
+
+params:
+    outdir: '~/simulation/'
+    splitbam: false
+    procs: 1
+    seed: 32337
+    tmpdir: '~/tmp'
+    random_snv:
+        count: 500
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
+    random_indel:
+        count: 200
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
+        max_length: 18
+    random_sv:
+        count:
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
+
+

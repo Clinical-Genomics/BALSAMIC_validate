@@ -3,20 +3,19 @@
 
 rule random_sites_snv:
     input:
-        reference_genome = ""
-        targeted_region = ""
-        fai_index = ""
+        reference_genome = reference['genome']
+        targeted_region = reference['targets']
+        fai_index = reference['genome_fai']
     params:
         seed = seed
-        numpicks = config['random_snv']['count']
-        minvaf = config['random_snv']['minvaf']
-        maxvaf = config['random_snv']['maxvaf']
-        vafbeta1 = config['random_snv']['vafbeta1']
-        vafbeta2 = config['random_snv']['vafbeta2']
+        numpicks = params['random_snv']['count']
+        minvaf = params['random_snv']['minvaf']
+        maxvaf = params['random_snv']['maxvaf']
+        vafbeta1 = params['random_snv']['vafbeta1']
+        vafbeta2 = params['random_snv']['vafbeta2']
         mode = 'snv'
     output:
-        random_snv_bed
-    singularity: "docker::lethalfang/bamsurgeon"
+        random_snv_bed = "bed/random_sSNV.bed"
     shell:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
@@ -34,21 +33,20 @@ rule random_sites_snv:
 
 rule random_sites_indel:
     input:
-        reference_genome = ""
-        targeted_region = ""
-        reference_dict = ""
+        reference_genome = reference['genome']
+        targeted_region = reference['targets']
+        reference_dict = reference['genome_dict']
     params:
         seed = seed
-        numpicks = config['random_indel']['count']
-        minvaf = config['random_indel']['minvaf']
-        maxvaf = config['random_indel']['maxvaf']
-        vafbeta1 = config['random_indel']['vafbeta1']
-        vafbeta2 = config['random_indel']['vafbeta2']
+        numpicks = params['random_indel']['count']
+        minvaf = params['random_indel']['minvaf']
+        maxvaf = params['random_indel']['maxvaf']
+        vafbeta1 = params['random_indel']['vafbeta1']
+        vafbeta2 = params['random_indel']['vafbeta2']
         mode = 'indel'
-        max_length = config['random_indel']['max_length']
+        max_length = params['random_indel']['max_length']
     output:
-        random_indel_bed
-    singularity: "docker::lethalfang/bamsurgeon"
+        random_indel_bed = "bed/random_sINDEL.bed"
     shell:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
@@ -67,20 +65,19 @@ rule random_sites_indel:
 
 rule random_sites_sv:
     input:
-        reference_genome = 
-        targeted_region =
-        reference_dict =
+        reference_genome = reference['genome']
+        targeted_region = reference['targets']
+        reference_dict = reference['genome_dict']
     params:
         seed = seed
-        numpicks = config['random_sv']['count']
-        minvaf = config['random_sv']['minvaf']
-        maxvaf = config['random_sv']['maxvaf']
-        vafbeta1 = config['random_sv']['vafbeta1']
-        vafbeta2 = config['random_sv']['vafbeta2']
+        numpicks = params['random_sv']['count']
+        minvaf = params['random_sv']['minvaf']
+        maxvaf = params['random_sv']['maxvaf']
+        vafbeta1 = params['random_sv']['vafbeta1']
+        vafbeta2 = params['random_sv']['vafbeta2']
     output:
-        cnv_bed = ""
-        sv_bed = ""
-    singularity: "docker::lethalfang/bamsurgeon"
+        cnv_bed = "bed/cnvfile.bed"
+        sv_bed = "bed/random_sSV.bed"
     shell:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
@@ -98,15 +95,14 @@ rule random_sites_sv:
 
 rule sort_gztab_cnvbed:
     input:
-        cnv_bed = 
-        fai_index = 
+        cnv_bed = "bed/cnvfile.bed"
+        fai_index = reference['genome_fai']
     output:
-        cnv_bed_gz = 
-    singularity: "docker::lethalfang/bamsurgeon"
+        cnv_bed_gz = "bed/cnvfile.bed.gz"
     shell:
         """
-        bedtools sort -header -faidx {input.fai_index} -i {input.cnv_bed} > {output.cnv_bed_gz}
-        && bgzip -f output.cnv_bed_gz
-        && tabix -f output.cnv_bed_gz
+        bedtools sort -header -faidx {input.fai_index} -i {input.cnv_bed} > {output.cnv_bed}.sorted \
+        && bgzip -f {output.cnv_bed}.sorted \
+        && tabix -f {output.cnv_bed_gz}
         """
 

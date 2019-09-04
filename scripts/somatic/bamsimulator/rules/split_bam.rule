@@ -3,14 +3,14 @@
 
 rule split_bam:
 	input:
-		input_bam_file
+		input_bam_file = samples['tumor']
 	params:
 		propotion = '0.5'
 		downsample = '1'
 		seed = seed
 	output:
-		normal = designated_normal_bam
-		tumor = designated_tumor_bam
+		normal = "bam/Designated_normal.bam"
+		tumor = "bam/Designated_tumor.bam"
 	shell:
 		"""
 		/usr/local/bamsurgeon/scripts/sortedBamSplit.py \

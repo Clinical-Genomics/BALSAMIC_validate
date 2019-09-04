@@ -9,3 +9,34 @@
 #####################################################
 
 
+configfile: "config.yaml"
+
+# reading samples and reference files path
+samples = config['samples']
+reference = config['reference']
+params = config['params']
+
+if len(samples) == 1:
+	params['splitbam'] = True
+
+workdir: params['workdir']
+
+
+if params['splitbam']:
+	include:
+		'rules/split_bam.rule'
+	
+	samples['normal'] = "bam/Designated_normal.bam"
+	samples['tumor'] = "bam/Designated_tumor.bam"
+
+include:
+	'rules/gen_random_sites.rule'
+include:
+	'rules/add_snv.rule'
+include:
+	'rules/add_indel.rule'
+include:
+	'rules/add_sv.rule'
+
+
+
