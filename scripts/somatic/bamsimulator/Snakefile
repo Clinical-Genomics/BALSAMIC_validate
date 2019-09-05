@@ -21,6 +21,7 @@ if len(samples) == 1:
 
 workdir: params['workdir']
 
+singularity: params['singularity']
 
 if params['splitbam']:
 	include:
@@ -28,6 +29,15 @@ if params['splitbam']:
 	
 	samples['normal'] = "bam/Designated_normal.bam"
 	samples['tumor'] = "bam/Designated_tumor.bam"
+
+# required output
+rule all:
+	input:
+		"bed/random_sSNV.bed",
+		"bed/random_sINDEL.bed",
+		"bed/random_sSV.bed",
+		"bed/cnvfile.bed.gz"
+
 
 include:
 	'rules/gen_random_sites.rule'

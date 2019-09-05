@@ -3,16 +3,16 @@
 
 rule random_sites_snv:
     input:
-        reference_genome = reference['genome']
-        targeted_region = reference['targets']
+        reference_genome = reference['genome'],
+        targeted_region = reference['targets'],
         fai_index = reference['genome_fai']
     params:
-        seed = seed
-        numpicks = params['random_snv']['count']
-        minvaf = params['random_snv']['minvaf']
-        maxvaf = params['random_snv']['maxvaf']
-        vafbeta1 = params['random_snv']['vafbeta1']
-        vafbeta2 = params['random_snv']['vafbeta2']
+        seed = params["seed"],
+        numpicks = params['random_snv']['count'],
+        minvaf = params['random_snv']['minvaf'],
+        maxvaf = params['random_snv']['maxvaf'],
+        vafbeta1 = params['random_snv']['vafbeta1'],
+        vafbeta2 = params['random_snv']['vafbeta2'],
         mode = 'snv'
     output:
         random_snv_bed = "bed/random_sSNV.bed"
@@ -20,6 +20,7 @@ rule random_sites_snv:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
             --genome {input.reference_genome} \
+            --seed {params.seed} \
             --bed {input.targeted_region} \
             --numpicks {params.numpicks} \
             --minvaf {params.minvaf} \
@@ -27,23 +28,23 @@ rule random_sites_snv:
             --vafbeta1 {params.vafbeta1} \
             --vafbeta2 {params.vafbeta2} \
             --avoidN {params.mode} \
-            | bedtools sort -header -faidx {fai_index} > {output}
+            | bedtools sort -header -faidx {input.fai_index} > {output.random_snv_bed}
         """
 
 
 rule random_sites_indel:
     input:
-        reference_genome = reference['genome']
-        targeted_region = reference['targets']
+        reference_genome = reference['genome'],
+        targeted_region = reference['targets'],
         reference_dict = reference['genome_dict']
     params:
-        seed = seed
-        numpicks = params['random_indel']['count']
-        minvaf = params['random_indel']['minvaf']
-        maxvaf = params['random_indel']['maxvaf']
-        vafbeta1 = params['random_indel']['vafbeta1']
-        vafbeta2 = params['random_indel']['vafbeta2']
-        mode = 'indel'
+        seed = params['seed'],
+        numpicks = params['random_indel']['count'],
+        minvaf = params['random_indel']['minvaf'],
+        maxvaf = params['random_indel']['maxvaf'],
+        vafbeta1 = params['random_indel']['vafbeta1'],
+        vafbeta2 = params['random_indel']['vafbeta2'],
+        mode = 'indel',
         max_length = params['random_indel']['max_length']
     output:
         random_indel_bed = "bed/random_sINDEL.bed"
@@ -51,6 +52,7 @@ rule random_sites_indel:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
             --genome {input.reference_genome} \
+            --seed {params.seed} \
             --bed {input.targeted_region} \
             --numpicks {params.numpicks} \
             --minvaf {params.minvaf} \
@@ -59,25 +61,25 @@ rule random_sites_indel:
             --vafbeta2 {params.vafbeta2} \
             --avoidN {params.mode} \
             --maxlen {params.max_length} \
-            | vcfsorter.pl {input.reference_dict} > {output}
+            | vcfsorter.pl {input.reference_dict} - > {output}
         """
 
 
 rule random_sites_sv:
     input:
-        reference_genome = reference['genome']
-        targeted_region = reference['targets']
+        reference_genome = reference['genome'],
+        targeted_region = reference['targets'],
         reference_dict = reference['genome_dict']
     params:
-        seed = seed
-        numpicks = params['random_sv']['count']
-        minvaf = params['random_sv']['minvaf']
-        maxvaf = params['random_sv']['maxvaf']
-        vafbeta1 = params['random_sv']['vafbeta1']
+        seed = params['seed'],
+        numpicks = params['random_sv']['count'],
+        minvaf = params['random_sv']['minvaf'],
+        maxvaf = params['random_sv']['maxvaf'],
+        vafbeta1 = params['random_sv']['vafbeta1'],
         vafbeta2 = params['random_sv']['vafbeta2']
     output:
-        cnv_bed = "bed/cnvfile.bed"
-        sv_bed = "bed/random_sSV.bed"
+        cnvfile = "bed/unsorted_cnvfile.bed",
+        random_sv_bed = "bed/random_sSV.bed"
     shell:
         """
         /usr/local/bamsurgeon/scripts/randomsites.py  \
@@ -89,20 +91,22 @@ rule random_sites_sv:
              --maxvaf {params.maxvaf} \
              --vafbeta1 {params.vafbeta1} \
              --vafbeta2 {params.vafbeta2} sv \
-             --cnvfile {output.cnvfile} | vcfsorter.pl {input.reference_dict} - > output.sv_bed
+             --cnvfile {output.cnvfile} | vcfsorter.pl {input.reference_dict} - > {output.random_sv_bed}
         """
         
 
 rule sort_gztab_cnvbed:
     input:
-        cnv_bed = "bed/cnvfile.bed"
+        cnv_bed = "bed/unsorted_cnvfile.bed",
         fai_index = reference['genome_fai']
+    params:
+        cnv_bed = "bed/cnvfile.bed"
     output:
         cnv_bed_gz = "bed/cnvfile.bed.gz"
     shell:
         """
-        bedtools sort -header -faidx {input.fai_index} -i {input.cnv_bed} > {output.cnv_bed}.sorted \
-        && bgzip -f {output.cnv_bed}.sorted \
+        bedtools sort -header -faidx {input.fai_index} -i {input.cnv_bed} > {params.cnv_bed} \
+        && bgzip -f {params.cnv_bed} \
         && tabix -f {output.cnv_bed_gz}
         """
 

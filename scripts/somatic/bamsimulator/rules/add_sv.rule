@@ -4,16 +4,16 @@
 
 rule add_sv:
     input:
-        snvs_indels_added_bam = "bam/snvs_indels_added.bam"
-        varfile = "bed/random_sSV.bed"
-        cnvfile = "bed/cnvfile.bed.gz"
+        snvs_indels_added_bam = "bam/snvs_indels_added.bam",
+        varfile = "bed/random_sSV.bed",
+        cnvfile = "bed/cnvfile.bed.gz",
         reference_genome = reference['genome']
     params:
-        procs = params['procs']
-        seed = params['seed']
-        tmpdir = params['tmpdir']
+        procs = params['procs'],
+        seed = params['seed'],
+        tmpdir = params['tmpdir'],
     output:
-        unsorted_svs_added_bam = "bam/unsorted_snvs_indels_svs_added.bam"
+        unsorted_svs_added_bam = "bam/unsorted_snvs_indels_svs_added.bam",
         addsv_logs = os.path.join(params['tmpdir'], "addsv_logs_unsorted_snvs_indels_svs_added.bam")
     shell:
         """
@@ -30,8 +30,8 @@ rule add_sv:
 
 rule makevcf_sv:
     input:
-        addsv_logs = os.path.join(params['tmpdir'], "addsv_logs_unsorted_snvs_indels_svs_added.bam")
-        reference_genome = reference['genome']
+        addsv_logs = os.path.join(params['tmpdir'], "addsv_logs_unsorted_snvs_indels_svs_added.bam"),
+        reference_genome = reference['genome'],
         fai_index = reference['genome_fai']
     output:
         synthetic_svs = "vcf/synthetic_svs.vcf"
@@ -46,7 +46,7 @@ rule makevcf_sv:
 
 rule samtools_sort_index:
     input:
-        reference_genome = reference['genome']
+        reference_genome = reference['genome'],
         svs_unsorted_bam = "bam/unsorted_snvs_indels_svs_added.bam"
     params:
         memory = '4G'

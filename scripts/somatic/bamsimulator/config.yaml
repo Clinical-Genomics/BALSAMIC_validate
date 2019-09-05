@@ -4,17 +4,18 @@ samples:
     tumor: 'tumor.bam'
 
 reference:
-    genome: /path/to/reference_genome
-    genome_fai: /path/to/reference_genome_index
-    genome_dict: 
-    targets: /path/to/bed
+    genome: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.fasta"
+    genome_fai: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.fasta.fai"
+    genome_dict: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.dict"
+    targets: "/home/sarath/reference/GRCh37/Twist_Target_hg19_updated.bed"
 
 params:
-    outdir: '~/simulation/'
+    workdir: "/home/sarath/simulation/"
+    singularity: "/home/sarath/containers/bamsurgeon_latest.sif"
     splitbam: false
     procs: 1
     seed: 32337
-    tmpdir: '~/tmp'
+    tmpdir: 'tmp/'
     random_snv:
         count: 500
         minvaf: 0.05
@@ -29,7 +30,7 @@ params:
         vafbeta2: 2
         max_length: 18
     random_sv:
-        count:
+        count: 100
         minvaf: 0.05
         maxvaf: 0.5
         vafbeta1: 2

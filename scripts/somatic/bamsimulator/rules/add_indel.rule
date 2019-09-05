@@ -4,18 +4,18 @@
 
 rule add_indel:
     input:
-        snvs_added_bam = "bam/snvs_added.bam"
-        random_indel = "bed/random_indel.bed"
-        reference_genome = reference['genome']
+        snvs_added_bam = "bam/snvs_added.bam",
+        random_indel = "bed/random_indel.bed",
+        reference_genome = reference['genome'],
         cnv_bed_file = "bed/random_cnv.bed"
     params:
-        procs = params['procs']
-        seed = params['seed']
-        picardjar = '/usr/local/bin/picard.jar'
-        tmpdir = params['tmpdir']
+        procs = params['procs'],
+        seed = params['seed'],
+        picardjar = '/usr/local/bin/picard.jar',
+        tmpdir = params['tmpdir'],
         aligner = "mem"
     output:
-        unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam"
+        unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam",
         addindel_logs = os.path.join(params['tmpdir'], "addindel_logs_unsorted_snvs_indels_added.bam")
     shell:
         """
@@ -34,11 +34,11 @@ rule add_indel:
 
 rule makevcf_indel:
     input:
-        addindel_logs = os.path.join(params['tmpdir'], "addindel_logs_unsorted_snvs_indels_added.bam")
-        reference_genome = reference['genome']
+        addindel_logs = os.path.join(params['tmpdir'], "addindel_logs_unsorted_snvs_indels_added.bam"),
+        reference_genome = reference['genome'],
         fai_index = reference['genome_fai']
     output:
-        indel_prevcf = "vcf/synthetic_preindel.vcf"
+        indel_prevcf = "vcf/synthetic_preindel.vcf",
         indel_vcf = "vcf/synthetic_indel.vcf"
     shell:
         """
@@ -51,7 +51,7 @@ rule makevcf_indel:
 
 rule leftalign_vcf:
     input:
-        reference_genome = reference['genome']
+        reference_genome = reference['genome'],
         indel_vcf = "vcf/synthetic_indel.vcf"
     output:
         indel_leftalign_vcf = "vcf/synthetic_indel_leftalign.vcf"
@@ -67,7 +67,7 @@ rule leftalign_vcf:
 
 rule samtools_sort_index:
     input:
-        reference_genome = reference['genome']
+        reference_genome = reference['genome'],
         unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam"
     params:
         memory = "4G"
