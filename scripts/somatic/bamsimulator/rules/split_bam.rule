@@ -3,21 +3,21 @@
 
 rule split_bam:
 	input:
-		input_bam_file = samples['tumor']
+		tumor = samples['tumor']
 	params:
-		propotion = '0.5'
-		downsample = '1'
-		seed = seed
+		propotion = '0.5',
+		downsample = '1',
+		seed = params['seed']
 	output:
 		normal = "bam/Designated_normal.bam"
 		tumor = "bam/Designated_tumor.bam"
 	shell:
 		"""
 		/usr/local/bamsurgeon/scripts/sortedBamSplit.py \
-				--bam {input} \
+				--bam {input.tumor} \
 				--proportion {params.proportion} \
 				--downsample {params.downsample} \
-				--pick1 {normal} \
-				--pick2 {tumor} \
-				--seed {seed} \
+				--pick1 {output.normal} \
+				--pick2 {output.tumor} \
+				--seed {params.seed} \
 		"""

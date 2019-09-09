@@ -8,8 +8,12 @@
 #
 #####################################################
 
+# import required packages
+from snakemake.utils import validate
+
 
 configfile: "config.yaml"
+validate(config, schema= "schemas/config.schema.yaml")
 
 # reading samples and reference files path
 samples = config['samples']
@@ -40,13 +44,10 @@ rule all:
 
 
 include:
-	'rules/gen_random_sites.rule'
+	"rules/gen_random_sites.rule"
 include:
-	'rules/add_snv.rule'
+	"rules/add_snv.rule"
 include:
-	'rules/add_indel.rule'
-include:
-	'rules/add_sv.rule'
-
-
-
+	"rules/add_indel.rule"
+# include:
+# 	"rules/add_sv.rule"

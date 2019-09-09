@@ -1,7 +1,7 @@
 
 samples:
-    normal: 'normal.bam'
     tumor: 'tumor.bam'
+    normal: 'normal.bam'
 
 reference:
     genome: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.fasta"
