@@ -5,7 +5,7 @@ rule split_bam:
 	input:
 		tumor = samples['tumor']
 	params:
-		propotion = '0.5',
+		proportion = '0.5',
 		downsample = '1',
 		seed = params['seed']
 	output:

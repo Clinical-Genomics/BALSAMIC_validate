@@ -14,7 +14,7 @@ rule add_sv:
         tmpdir = params['tmpdir'],
     output:
         unsorted_svs_added_bam = "bam/unsorted_snvs_indels_svs_added.bam",
-        addsv_logs = os.path.join(params['tmpdir'], "addsv_logs_unsorted_snvs_indels_svs_added.bam")
+        addsv_logs = directory("addsv_logs_unsorted_snvs_indels_svs_added.bam")
     shell:
         """
         /usr/local/bamsurgeon/bin/addsv.py \
@@ -30,7 +30,7 @@ rule add_sv:
 
 rule makevcf_sv:
     input:
-        addsv_logs = os.path.join(params['tmpdir'], "addsv_logs_unsorted_snvs_indels_svs_added.bam"),
+        addsv_logs = "addsv_logs_unsorted_snvs_indels_svs_added.bam",
         reference_genome = reference['genome'],
         fai_index = reference['genome_fai']
     output:

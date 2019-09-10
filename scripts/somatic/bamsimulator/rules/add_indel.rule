@@ -5,9 +5,9 @@
 rule add_indel:
     input:
         snvs_added_bam = "bam/snvs_added.bam",
-        random_indel = "bed/random_indel.bed",
+        random_indel = "bed/random_sINDEL.bed",
         reference_genome = reference['genome'],
-        cnv_bed_file = "bed/random_cnv.bed"
+        cnv_bed_file = "bed/cnvfile.bed.gz"
     params:
         procs = params['procs'],
         seed = params['seed'],
@@ -16,7 +16,7 @@ rule add_indel:
         aligner = "mem"
     output:
         unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam",
-        addindel_logs = os.path.join(params['tmpdir'], "addindel_logs_unsorted_snvs_indels_added.bam")
+        addindel_logs = directory("addindel_logs_unsorted_snvs_indels_added.bam")
     shell:
         """
         /usr/local/bamsurgeon/bin/addindel.py --snvfrac 0.1 --mutfrac 0.5 --coverdiff 0.9 \
@@ -34,38 +34,39 @@ rule add_indel:
 
 rule makevcf_indel:
     input:
-        addindel_logs = os.path.join(params['tmpdir'], "addindel_logs_unsorted_snvs_indels_added.bam"),
+        addindel_logs = "addindel_logs_unsorted_snvs_indels_added.bam",
         reference_genome = reference['genome'],
         fai_index = reference['genome_fai']
     output:
-        indel_prevcf = "vcf/synthetic_preindel.vcf",
-        indel_vcf = "vcf/synthetic_indel.vcf"
+        indel_prevcf = "vcf/synthetic_preindel.vcf"
     shell:
         """
-        /usr/local/bamsurgeon/scripts/makevcf_indels.py {input.snvs_log_dir} {input.reference_genome} \
-        | bedtools sort -header -faidx {input.fai_index} > {output.indel_prevcf} && \
-        cat {output.indel_prevcf} | /opt/somaticseq/utilities/dockered_pipelines/bamSimulator/bamSurgeon/convert_nonStandardBasesInVcfs.py \
-        > {output.indel_vcf}
+        /usr/local/bamsurgeon/scripts/makevcf_indels.py {input.addindel_logs} {input.reference_genome} \
+        | bedtools sort -header -faidx {input.fai_index} > {output.indel_prevcf}
         """
 
 
 rule leftalign_vcf:
     input:
         reference_genome = reference['genome'],
-        indel_vcf = "vcf/synthetic_indel.vcf"
+        indel_prevcf = "vcf/synthetic_preindel.vcf"
     output:
-        indel_leftalign_vcf = "vcf/synthetic_indel_leftalign.vcf"
+        indel_vcf = "vcf/synthetic_indel.vcf",
+        indel_leftalign_vcf = "vcf/synthetic_indel_leftalign.vcf",
+    singularity: params['sif_somaticseq']
     shell:
         """
+        cat {input.indel_prevcf} | \
+        /opt/somaticseq/utilities/dockered_pipelines/bamSimulator/bamSurgeon/convert_nonStandardBasesInVcfs.py > {output.indel_vcf} &&
         java -jar /opt/GATK/GenomeAnalysisTK.jar \
             -T LeftAlignAndTrimVariants \
             -R {input.reference_genome} \
-            --variant {input.indel_vcf} \
+            --variant {output.indel_vcf} \
         | egrep -v '^[0-9]+ variants|^INFO' > {output.indel_leftalign_vcf}
         """    
 
 
-rule samtools_sort_index:
+rule samtools_sort_index_indel:
     input:
         reference_genome = reference['genome'],
         unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam"
@@ -76,7 +77,7 @@ rule samtools_sort_index:
     shell:
         """
         samtools sort -m {params.memory} \
-            --reference {input.reference} \
-            -o {output.snvs_added_bam} {input.unsorted_snvs_indels_bam} &&
+            --reference {input.reference_genome} \
+            -o {output.snvs_indels_added_bam} {input.unsorted_snvs_indels_bam} &&
         samtools index {output.snvs_indels_added_bam}
         """

@@ -25,7 +25,7 @@ if len(samples) == 1:
 
 workdir: params['workdir']
 
-singularity: params['singularity']
+singularity: params['sif_bamsurgeon']
 
 if params['splitbam']:
 	include:
@@ -34,14 +34,21 @@ if params['splitbam']:
 	samples['normal'] = "bam/Designated_normal.bam"
 	samples['tumor'] = "bam/Designated_tumor.bam"
 
+# outputs
+bed_output = ['random_sSNV.bed', 'random_sINDEL.bed', 'random_sSV.bed', 'cnvfile.bed.gz']
+bam_output = ['snvs_added.bam', 'snvs_indels_added.bam']
+vcf_output = ['synthetic_snvs.vcf', 'synthetic_indel_leftalign.vcf']
+
+if params['add_sv']:
+	bam_output.append('snvs_indels_svs_added.bam')
+	vcf_output.append('synthetic_svs.vcf')
+
 # required output
 rule all:
 	input:
-		"bed/random_sSNV.bed",
-		"bed/random_sINDEL.bed",
-		"bed/random_sSV.bed",
-		"bed/cnvfile.bed.gz"
-
+		expand('bed/{bed}', bed = bed_output),
+		expand('bam/{bam}', bam = bam_output),
+		expand('vcf/{vcf}', vcf = vcf_output)
 
 include:
 	"rules/gen_random_sites.rule"

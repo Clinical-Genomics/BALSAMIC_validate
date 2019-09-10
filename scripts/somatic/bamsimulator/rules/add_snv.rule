@@ -4,7 +4,7 @@
 rule add_snv:
     input:
         tumor_bam = samples['tumor'],
-        random_snv = samples['normal'],
+        random_snv = "bed/random_sSNV.bed",
         reference_genome = reference['genome'],
         cnv_bed_file = "bed/cnvfile.bed.gz"
     params:
@@ -15,7 +15,7 @@ rule add_snv:
         aligner = "mem"
     output:
         snv_added_bam = "bam/unsorted_snvs_added.bam",
-        snvs_log_dir = os.path.join(params['tmpdir'], "addsnv_logs_unsorted_snvs_added.bam")
+        snvs_log_dir = directory("addsnv_logs_unsorted_snvs_added.bam")
     shell:
         """
         /usr/local/bamsurgeon/bin/addsnv.py --snvfrac 0.1 --mutfrac 0.5 --coverdiff 0.9 \
@@ -24,7 +24,7 @@ rule add_snv:
             --bamfile {input.tumor_bam} \
             --reference {input.reference_genome} \
             --cnvfile {input.cnv_bed_file} \
-            --outbam {ouput.snv_added_bam} \
+            --outbam {output.snv_added_bam} \
             --mindepth 5 --maxdepth 5000 --minmutreads 2 \
             --seed {params.seed} \
             --picardjar {params.picardjar} \
@@ -34,7 +34,7 @@ rule add_snv:
 
 rule makevcf_snv:
     input:
-        snvs_log_dir = os.path.join(params['tmpdir'], "addsnv_logs_unsorted_snvs_added.bam"),
+        snvs_log_dir = "addsnv_logs_unsorted_snvs_added.bam",
         fai_index = reference['genome_fai'],
     output:
         sythetic_snvs = "vcf/synthetic_snvs.vcf"
@@ -45,7 +45,7 @@ rule makevcf_snv:
         """
 
 
-rule samtools_sort_index:
+rule samtools_sort_index_snv:
     input:
         reference_genome = reference['genome'],
         snvs_unsorted_bam = "bam/unsorted_snvs_added.bam"

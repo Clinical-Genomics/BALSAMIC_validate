@@ -1,29 +1,31 @@
 
 samples:
-    tumor: 'tumor.bam'
-    normal: 'normal.bam'
+    tumor: '/home/sarath/validation/ACC5403A1_300X.markdup.bam'
+    normal: '/home/sarath/validation/ACC5403A1_500X.markdup.bam'
 
 reference:
     genome: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.fasta"
     genome_fai: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.fasta.fai"
     genome_dict: "/home/sarath/reference/GRCh37/genome/human_g1k_v37_decoy.dict"
-    targets: "/home/sarath/reference/GRCh37/Twist_Target_hg19_updated.bed"
+    targets: "/home/sarath/reference/GRCh37/lymphomatic_v2.1_hg19.bed"
 
 params:
     workdir: "/home/sarath/simulation/"
-    singularity: "/home/sarath/containers/bamsurgeon_latest.sif"
+    sif_bamsurgeon: "/home/sarath/containers/bamsurgeon_latest.sif"
+    sif_somaticseq: "/home/sarath/containers/somaticseq_latest.sif"
     splitbam: false
-    procs: 1
+    procs: 8
     seed: 32337
     tmpdir: 'tmp/'
+    add_sv: false
     random_snv:
-        count: 500
+        count: 150
         minvaf: 0.05
         maxvaf: 0.5
         vafbeta1: 2
         vafbeta2: 2
     random_indel:
-        count: 200
+        count: 50
         minvaf: 0.05
         maxvaf: 0.5
         vafbeta1: 2

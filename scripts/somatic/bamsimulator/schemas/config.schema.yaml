@@ -34,7 +34,9 @@ properties:
         properties:
             workdir:
                 type: string
-            singularity:
+            sif_bamsurgeon:
+                type: string
+            sif_somaticseq:
                 type: string
             splitbam: 
                 type: boolean
@@ -87,7 +89,8 @@ properties:
                         type: integer
         required:
             - workdir
-            - singularity
+            - sif_bamsurgeon
+            - sif_somaticseq
             - splitbam
             - procs
             - seed
