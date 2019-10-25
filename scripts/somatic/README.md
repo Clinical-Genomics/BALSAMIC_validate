@@ -2,7 +2,7 @@
 
   This pipeline has been written in snakemake to generate truth sets for somatic variant call validation. It requires either high coverage normal sample or two technical replicates of same normal sample to use one as normal and another one as psudo-tumor. To run this workflow, edit the config file with proper file paths and use snakemake with singularity option to start this pipeline.
 
-*Note: This method adopted from [SomaticSeq](https://github.com/bioinform/somaticseq/tree/master/utilities/dockered_pipelines/bamSimulator) repo*
+*Note: This method was adopted from [SomaticSeq](https://github.com/bioinform/somaticseq/tree/master/utilities/dockered_pipelines/bamSimulator) repo*
 
 ## Requirement
 
