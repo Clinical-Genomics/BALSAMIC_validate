@@ -46,8 +46,4 @@ Scatter plot to compare all variant callers recall against precision values
 
 ![Recall vs Precision](scatter_plot.png)
 
-MuTect2 didn't pass single variant from this sample which seemed weird. However, Vardict called almost 70% of the truth variants but vardict algorithym calls all variants include germline. One of the possible reason could be the small targeted panel(26kb) with more than 450 mutations spikedin. We need to redo the analysis with whole exome data to compare the performance of each caller.
-
-In addition, We compared variant results from direct bam file which is generated from bamsurgeon. It showed some significant changes over number of variants called by strelka and vardict. But there was no change in MuTect2's performance.
-
-
+MuTect2 didn't pass single variant from this sample which is unusual. However, Vardict called almost 70% of the true variants. Here, we used small panel (26kb) for benchmarking which could be the possible reason for this  results. We have to redo the analysis with whole exome data to compare the performance of each caller.
