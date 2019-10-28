@@ -24,7 +24,7 @@
  conda env create -f conda.yaml
  
  # to run 
- snakemake 
+ snakemake --cores 16 --use-conda
  ```
 
 # Validation:
