@@ -1,0 +1,83 @@
+#! /usr/bin/env python
+# tabstop=4 expandtab
+
+
+rule add_indel:
+    input:
+        snvs_added_bam = "bam/snvs_added.bam",
+        random_indel = "bed/random_sINDEL.bed",
+        reference_genome = reference['genome'],
+        cnv_bed_file = "bed/cnvfile.bed.gz"
+    params:
+        procs = params['procs'],
+        seed = params['seed'],
+        picardjar = '/usr/local/bin/picard.jar',
+        tmpdir = params['tmpdir'],
+        aligner = "mem"
+    output:
+        unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam",
+        addindel_logs = directory("addindel_logs_unsorted_snvs_indels_added.bam")
+    shell:
+        """
+        /usr/local/bamsurgeon/bin/addindel.py --snvfrac 0.1 --mutfrac 0.5 --coverdiff 0.9 \
+            --procs {params.procs} \
+            --varfile {input.random_indel} \
+            --bamfile  {input.snvs_added_bam} \
+            --reference {input.reference_genome}  \
+            --cnvfile {input.cnv_bed_file} \
+            --outbam {output.unsorted_snvs_indels_bam} \
+            --picardjar {params.picardjar} \
+            --mindepth 10 --maxdepth 5000 --minmutreads 2 --seed {params.seed} \
+            --tagreads --force --aligner mem --tmpdir {params.tmpdir}
+        """
+
+
+rule makevcf_indel:
+    input:
+        addindel_logs = "addindel_logs_unsorted_snvs_indels_added.bam",
+        reference_genome = reference['genome'],
+        fai_index = reference['genome_fai']
+    output:
+        indel_prevcf = "vcf/synthetic_preindel.vcf"
+    shell:
+        """
+        /usr/local/bamsurgeon/scripts/makevcf_indels.py {input.addindel_logs} {input.reference_genome} \
+        | bedtools sort -header -faidx {input.fai_index} > {output.indel_prevcf}
+        """
+
+
+rule leftalign_vcf:
+    input:
+        reference_genome = reference['genome'],
+        indel_prevcf = "vcf/synthetic_preindel.vcf"
+    output:
+        indel_vcf = "vcf/synthetic_indel.vcf",
+        indel_leftalign_vcf = "vcf/synthetic_indel_leftalign.vcf",
+    singularity: params['sif_somaticseq']
+    shell:
+        """
+        cat {input.indel_prevcf} | \
+        /opt/somaticseq/utilities/dockered_pipelines/bamSimulator/bamSurgeon/convert_nonStandardBasesInVcfs.py > {output.indel_vcf} &&
+        java -jar /opt/GATK/GenomeAnalysisTK.jar \
+            -T LeftAlignAndTrimVariants \
+            -R {input.reference_genome} \
+            --variant {output.indel_vcf} \
+        | egrep -v '^[0-9]+ variants|^INFO' > {output.indel_leftalign_vcf}
+        """    
+
+
+rule samtools_sort_index_indel:
+    input:
+        reference_genome = reference['genome'],
+        unsorted_snvs_indels_bam = "bam/unsorted_snvs_indels_added.bam"
+    params:
+        memory = "4G"
+    output:
+        snvs_indels_added_bam = "bam/snvs_indels_added.bam"
+    shell:
+        """
+        samtools sort -m {params.memory} \
+            --reference {input.reference_genome} \
+            -o {output.snvs_indels_added_bam} {input.unsorted_snvs_indels_bam} &&
+        samtools index {output.snvs_indels_added_bam}
+        """

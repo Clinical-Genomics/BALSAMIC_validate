@@ -1,0 +1,105 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+    samples:
+        type: object
+        properties:
+            normal:
+                type: string
+            tumor:
+                type: string
+        required:
+            - tumor
+
+    reference:
+        type: object
+        properties:
+            genome: 
+                type: string
+            genome_fai:
+                type: string
+            genome_dict:
+                type: string
+        required:
+            - genome
+            - genome_fai
+            - genome_dict
+
+    params:
+        type: object
+        properties:
+            workdir:
+                type: string
+            sif_bamsurgeon:
+                type: string
+            sif_somaticseq:
+                type: string
+            splitbam: 
+                type: boolean
+            procs: 
+                type: integer
+            seed: 
+                type: integer
+            tmpdir: 
+                type: string
+            random_snv:
+                type: object
+                properties:
+                    count: 
+                        type: integer
+                    minvaf:
+                        type: number
+                    maxvaf: 
+                        type: number
+                    vafbeta1:
+                        type: integer
+                    vafbeta2: 
+                        type: integer
+            random_indel:
+                type: object
+                properties:
+                    count: 
+                        type: integer
+                    minvaf: 
+                        type: number
+                    maxvaf: 
+                        type: number
+                    vafbeta1: 
+                        type: integer
+                    vafbeta2: 
+                        type: integer
+                    max_length: 
+                        type: integer
+            random_sv:
+                type: object
+                properties:
+                    count: 
+                        type: integer
+                    minvaf:
+                        type: number
+                    maxvaf: 
+                        type: number
+                    vafbeta1: 
+                        type: integer
+                    vafbeta2: 
+                        type: integer
+        required:
+            - workdir
+            - sif_bamsurgeon
+            - sif_somaticseq
+            - splitbam
+            - procs
+            - seed
+            - tmpdir
+            - random_snv
+            - random_indel
+
+
+required:
+    - samples
+    - reference
+    - params

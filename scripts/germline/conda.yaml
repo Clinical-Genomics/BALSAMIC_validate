@@ -1,0 +1,7 @@
+name: germline-validation
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - picard

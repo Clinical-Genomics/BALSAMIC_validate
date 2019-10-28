@@ -1,0 +1,90 @@
+#! /usr/bin/env python
+# syntax=python tabstop=4 expandtab
+# This workflow is 
+
+import os
+
+configfile: "config.yaml"
+
+_base_link = "ftp://ftp-trace.ncbi.nih.gov/giab/ftp/data/NA12878/Garvan_NA12878_HG001_HiSeq_Exome"
+_fastq = ['NIST7035_TAAGGCGA_L001_R1_001_trimmed.fastq.gz','NIST7035_TAAGGCGA_L001_R2_001_trimmed.fastq.gz', \
+          'NIST7035_TAAGGCGA_L002_R1_001_trimmed.fastq.gz', 'NIST7035_TAAGGCGA_L002_R2_001_trimmed.fastq.gz']
+_bed_file = "nexterarapidcapture_expandedexome_targetedregions.bed.gz"
+_hc_vcf = "project.NIST.hc.snps.indels.vcf"
+_hg19_to_grch37 = config['hg19to37']
+# _hg19_to_grch37 = "http://sourceforge.net/projects/crossmap/files/chain_files/hg19ToGRCh37.over.chain.gz"
+
+_lifted_vcf_file = "project.NIST.hc.snps.indels.grch37.vcf"
+_chain_file = "hg19ToGRCh37.over.chain"
+_bed_without_chr = "nexterarapidcapture.bed"
+
+outdir = config['outdir']
+
+workdir: outdir
+
+
+rule all:
+    input:
+        expand("{sample}", sample=_fastq),
+        expand("{files}", files=[_bed_file, 
+            _hc_vcf, _chain_file, _lifted_vcf_file, "rejected_variants.vcf", _bed_without_chr])
+
+
+rule download_data:
+    params:
+        base_link = _base_link,
+        fastq = _fastq,
+        bed_file = _bed_file,
+        hc_vcf = _hc_vcf,
+        hg19_to_grch37 = _hg19_to_grch37,
+        chain_file = _chain_file
+    output: 
+        _bed_file,
+        _hc_vcf,
+        _chain_file,
+        expand("{sample}", sample=_fastq)
+    run:
+        bed_file = os.path.join(params.base_link, params.bed_file)
+        hc_vcf = os.path.join(params.base_link, params.hc_vcf)
+        shell("wget {bed_file};")
+        shell("wget {hc_vcf};")
+        shell("cp {params.hg19_to_grch37} {params.chain_file}")
+        # shell("wget -O - {params.hg19_to_grch37} | gunzip > {params.chain_file}")
+
+        for file in list(params.fastq):
+            link = os.path.join(params.base_link, file)
+            shell("wget {link};")
+
+
+rule picard_lift_over:
+    input:
+        hc_vcf = _hc_vcf,
+        chain_file = _chain_file,
+        reference_genome = config['reference']
+    output:
+        lifted_vcf = _lifted_vcf_file,
+        rejected_vcf =  "rejected_variants.vcf"
+    params:
+        java_option = '-Xms2g'
+    conda: 'conda.yaml'
+    shell:
+        """
+        picard {params.java_option} LiftoverVcf \
+                I={input.hc_vcf} \
+                O={output.lifted_vcf} \
+                CHAIN={input.chain_file} \
+                REJECT={output.rejected_vcf} \
+                R={input.reference_genome} 
+        """
+
+
+rule remove_chr_bed:
+    input:
+        _bed_file
+    output:
+        _bed_without_chr
+    shell:
+        """
+        zcat {input} | sed 's/^chr//g' > {output} 
+        """
+

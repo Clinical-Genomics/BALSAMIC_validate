@@ -1,0 +1,60 @@
+#! /usr/bin/env python
+# syntax=python tabstop=4 expandtab
+
+#####################################################
+#  BAMSIMULATOR - TO GENERATE GOLD STANDARD
+#        NORMAL/TUMOR SAMPLE FOR
+#           SOMATIC VALIDATION
+#
+#####################################################
+
+# import required packages
+from snakemake.utils import validate
+
+
+configfile: "config.yaml"
+validate(config, schema= "schemas/config.schema.yaml")
+
+# reading samples and reference files path
+samples = config['samples']
+reference = config['reference']
+params = config['params']
+
+if len(samples) == 1:
+	params['splitbam'] = True
+
+workdir: params['workdir']
+
+singularity: params['sif_bamsurgeon']
+
+if params['splitbam']:
+	include:
+		'rules/split_bam.rule'
+	
+	samples['normal'] = "bam/Designated_normal.bam"
+	samples['tumor'] = "bam/Designated_tumor.bam"
+
+# outputs
+bed_output = ['random_sSNV.bed', 'random_sINDEL.bed', 'random_sSV.bed', 'cnvfile.bed.gz']
+bam_output = ['snvs_added.bam', 'snvs_indels_added.bam']
+vcf_output = ['synthetic_snvs.vcf', 'synthetic_indel_leftalign.vcf']
+
+if params['add_sv']:
+	bam_output.append('snvs_indels_svs_added.bam')
+	vcf_output.append('synthetic_svs.vcf')
+
+# required output
+rule all:
+	input:
+		expand('bed/{bed}', bed = bed_output),
+		expand('bam/{bam}', bam = bam_output),
+		expand('vcf/{vcf}', vcf = vcf_output)
+
+include:
+	"rules/gen_random_sites.rule"
+include:
+	"rules/add_snv.rule"
+include:
+	"rules/add_indel.rule"
+# include:
+# 	"rules/add_sv.rule"

@@ -1,0 +1,4 @@
+# config file for germline input data generation
+outdir: "results/germline/"
+reference: "reference/GRCh37/genome/human_g1k_v37_decoy.fasta"
+hg19to37: "/path/to/BALSAMIC_validate/scripts/germline/hg19ToGRCh37.over.chain"

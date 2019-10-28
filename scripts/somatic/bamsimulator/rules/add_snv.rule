@@ -1,0 +1,62 @@
+#! /usr/bin/env python
+# tabstop=4 expandtab
+
+rule add_snv:
+    input:
+        tumor_bam = samples['tumor'],
+        random_snv = "bed/random_sSNV.bed",
+        reference_genome = reference['genome'],
+        cnv_bed_file = "bed/cnvfile.bed.gz"
+    params:
+        procs = params['procs'],
+        seed = params['seed'],
+        picardjar = '/usr/local/bin/picard.jar',
+        tmpdir = params['tmpdir'],
+        aligner = "mem"
+    output:
+        snv_added_bam = "bam/unsorted_snvs_added.bam",
+        snvs_log_dir = directory("addsnv_logs_unsorted_snvs_added.bam")
+    shell:
+        """
+        /usr/local/bamsurgeon/bin/addsnv.py --snvfrac 0.1 --mutfrac 0.5 --coverdiff 0.9 \
+            --procs {params.procs} \
+            --varfile {input.random_snv} \
+            --bamfile {input.tumor_bam} \
+            --reference {input.reference_genome} \
+            --cnvfile {input.cnv_bed_file} \
+            --outbam {output.snv_added_bam} \
+            --mindepth 5 --maxdepth 5000 --minmutreads 2 \
+            --seed {params.seed} \
+            --picardjar {params.picardjar} \
+            --ignoresnps --force --tagreads --aligner {params.aligner} --tmpdir {params.tmpdir}
+        """
+
+
+rule makevcf_snv:
+    input:
+        snvs_log_dir = "addsnv_logs_unsorted_snvs_added.bam",
+        fai_index = reference['genome_fai'],
+    output:
+        sythetic_snvs = "vcf/synthetic_snvs.vcf"
+    shell:
+        """
+        /usr/local/bamsurgeon/scripts/makevcf.py  {input.snvs_log_dir} \
+        | bedtools sort -header -faidx {input.fai_index} > {output.sythetic_snvs}
+        """
+
+
+rule samtools_sort_index_snv:
+    input:
+        reference_genome = reference['genome'],
+        snvs_unsorted_bam = "bam/unsorted_snvs_added.bam"
+    params:
+        memory = '4G'
+    output:
+        snvs_added_bam = "bam/snvs_added.bam"
+    shell:
+        """
+        samtools sort -m {params.memory} \
+            --reference {input.reference_genome} \
+            -o {output.snvs_added_bam} {input.snvs_unsorted_bam} &&
+        samtools index {output.snvs_added_bam}
+        """

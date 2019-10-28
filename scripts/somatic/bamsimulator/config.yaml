@@ -1,0 +1,39 @@
+
+samples:
+    tumor: '/path/to/tumor.bam'
+    normal: '/path/to/normal.bam'
+
+reference:
+    genome: "reference/GRCh37/genome/human_g1k_v37_decoy.fasta"
+    genome_fai: "reference/GRCh37/genome/human_g1k_v37_decoy.fasta.fai"
+    genome_dict: "reference/GRCh37/genome/human_g1k_v37_decoy.dict"
+    targets: "reference/GRCh37/lymphomatic_v2.1_hg19.bed"
+
+params:
+    workdir: "result/simulation/"
+    sif_bamsurgeon: "containers/bamsurgeon_latest.sif"
+    sif_somaticseq: "containers/somaticseq_latest.sif"
+    splitbam: false
+    procs: 8
+    seed: 32337
+    tmpdir: '/path/tmp/'
+    add_sv: false
+    random_snv:
+        count: 150
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
+    random_indel:
+        count: 50
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
+        max_length: 18
+    random_sv:
+        count: 100
+        minvaf: 0.05
+        maxvaf: 0.5
+        vafbeta1: 2
+        vafbeta2: 2
